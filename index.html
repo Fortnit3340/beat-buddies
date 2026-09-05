@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>Beat Buddies — Tap. Play. Jam.</title>
+<meta name="description" content="A fun music pad app for kids. Tap the pads to make beats, record your song, and play it back. Works offline." />
+<meta name="theme-color" content="#1b1035" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link href="https://api.fontshare.com/v2/css?f[]=chillax@500,600,700&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 40 40" aria-label="Beat Buddies logo" role="img" fill="none">
+        <rect x="3" y="3" width="15" height="15" rx="4.5" stroke="currentColor" stroke-width="2.6"/>
+        <rect x="22" y="3" width="15" height="15" rx="7.5" fill="currentColor"/>
+        <rect x="3" y="22" width="15" height="15" rx="7.5" fill="currentColor"/>
+        <rect x="22" y="22" width="15" height="15" rx="4.5" stroke="currentColor" stroke-width="2.6"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Beat Buddies</h1>
+        <p>Tap the pads. Make music.</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button id="installBtn" class="chip chip-install" hidden>Install app</button>
+      <button id="fsBtn" class="chip" aria-label="Toggle fullscreen">Fullscreen</button>
+    </div>
+  </header>
+
+  <nav class="kits" id="kits" aria-label="Choose a sound kit">
+    <button class="kit is-active" data-kit="drums" style="--kit:#FF5E7E">Drums</button>
+    <button class="kit" data-kit="melody" style="--kit:#38E0D0">Melody</button>
+    <button class="kit" data-kit="funny" style="--kit:#FFD93D">Funny</button>
+  </nav>
+
+  <main class="pads" id="pads" aria-label="Sound pads"></main>
+
+  <section class="deck">
+    <div class="deck-row deck-row-main">
+      <button id="recBtn" class="btn btn-rec">
+        <span class="dot"></span><span class="btn-label">Record</span>
+      </button>
+      <button id="playBtn" class="btn btn-play" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>
+        <span class="btn-label">Play</span>
+      </button>
+      <button id="beatBtn" class="btn btn-beat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16V9m4 9V6m4 12V10m4 8V5m4 13v-7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span class="btn-label">Auto Beat</span>
+      </button>
+      <button id="saveBtn" class="btn btn-save" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h11l3 3v11H5z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 5v5h6" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+        <span class="btn-label">Save</span>
+      </button>
+    </div>
+    <div class="deck-row deck-row-sliders">
+      <label class="slider">
+        <span class="slider-label">Speed <b id="bpmOut">100</b></span>
+        <input id="bpm" type="range" min="60" max="170" step="1" value="100" />
+      </label>
+      <label class="slider">
+        <span class="slider-label">Volume <b id="volOut">80</b></span>
+        <input id="vol" type="range" min="0" max="100" step="1" value="80" />
+      </label>
+    </div>
+    <p class="hint" id="hint">Keys work too — <b>1 2 3 4 · Q W E R · A S D F · Z X C V</b></p>
+  </section>
+
+  <section class="songs">
+    <h2>My songs</h2>
+    <ul id="songList" class="song-list"></ul>
+    <p class="songs-empty" id="songsEmpty">No songs yet. Hit <b>Record</b>, tap some pads, then <b>Save</b>.</p>
+  </section>
+
+  <footer class="foot">Made for jamming — works offline once installed.</footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>
