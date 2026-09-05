@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-<title>Beat Buddies — Tap. Play. Jam.</title>
-<meta name="description" content="A fun music pad app for kids. Tap the pads to make beats, record your song, and play it back. Works offline." />
+<title>Beat Buddies — Tap. Loop. Jam.</title>
+<meta name="description" content="A fun music pad app for kids. Turn on looping beats, tap 24 sound pads, record your song and play it back. Works offline." />
 <meta name="theme-color" content="#1b1035" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -28,7 +28,7 @@
       </svg>
       <div class="brand-text">
         <h1>Beat Buddies</h1>
-        <p>Tap the pads. Make music.</p>
+        <p>Turn on a loop, then jam on the pads.</p>
       </div>
     </div>
     <div class="topbar-actions">
@@ -37,11 +37,13 @@
     </div>
   </header>
 
-  <nav class="kits" id="kits" aria-label="Choose a sound kit">
-    <button class="kit is-active" data-kit="drums" style="--kit:#FF5E7E">Drums</button>
-    <button class="kit" data-kit="melody" style="--kit:#38E0D0">Melody</button>
-    <button class="kit" data-kit="funny" style="--kit:#FFD93D">Funny</button>
-  </nav>
+  <section class="loops-wrap">
+    <div class="row-head">
+      <h2>Loops <span>tap to start · tap again to stop</span></h2>
+      <button id="stopAll" class="chip chip-stop">Stop loops</button>
+    </div>
+    <div class="loops" id="loops"></div>
+  </section>
 
   <main class="pads" id="pads" aria-label="Sound pads"></main>
 
@@ -54,16 +56,10 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>
         <span class="btn-label">Play</span>
       </button>
-      <button id="beatBtn" class="btn btn-beat">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16V9m4 9V6m4 12V10m4 8V5m4 13v-7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-        <span class="btn-label">Auto Beat</span>
-      </button>
       <button id="saveBtn" class="btn btn-save" disabled>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h11l3 3v11H5z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 5v5h6" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
         <span class="btn-label">Save</span>
       </button>
-    </div>
-    <div class="deck-row deck-row-sliders">
       <label class="slider">
         <span class="slider-label">Speed <b id="bpmOut">100</b></span>
         <input id="bpm" type="range" min="60" max="170" step="1" value="100" />
@@ -73,11 +69,13 @@
         <input id="vol" type="range" min="0" max="100" step="1" value="80" />
       </label>
     </div>
-    <p class="hint" id="hint">Keys work too — <b>1 2 3 4 · Q W E R · A S D F · Z X C V</b></p>
+    <p class="hint">Keys work too — pads: <b>1…8 · Q…I · A…K</b> · loops: <b>Z X C V B N</b> · record: <b>space</b></p>
   </section>
 
   <section class="songs">
-    <h2>My songs</h2>
+    <div class="row-head">
+      <h2>My songs</h2>
+    </div>
     <ul id="songList" class="song-list"></ul>
     <p class="songs-empty" id="songsEmpty">No songs yet. Hit <b>Record</b>, tap some pads, then <b>Save</b>.</p>
   </section>
