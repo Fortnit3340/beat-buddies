@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Phantom Beat">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
 <title>Beat Buddies — Tap. Loop. Jam.</title>
@@ -15,7 +20,11 @@
 <link href="https://api.fontshare.com/v2/css?f[]=chillax@500,600,700&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body><script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js");
+  }
+</script>
 <div class="app">
 
   <header class="topbar">
