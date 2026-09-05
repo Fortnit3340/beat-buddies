@@ -28,7 +28,7 @@
       </svg>
       <div class="brand-text">
         <h1>Beat Buddies</h1>
-        <p>Turn on a loop, then jam on the pads.</p>
+        <p>Tap a loop, then jam on top.</p>
       </div>
     </div>
     <div class="topbar-actions">
@@ -37,13 +37,9 @@
     </div>
   </header>
 
-  <section class="loops-wrap">
-    <div class="row-head">
-      <h2>Loops <span>tap to start · tap again to stop</span></h2>
-      <button id="stopAll" class="chip chip-stop">Stop loops</button>
-    </div>
-    <div class="loops" id="loops"></div>
-  </section>
+  <p class="lead"><span class="lead-badge"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9a5 5 0 015-5h9l-3-3M20 15a5 5 0 01-5 5H6l3 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    Pads with the <b>&#8635; mark keep looping</b> — tap to start, tap again to stop. All the others play once.
+    <button id="stopAll" class="chip chip-stop" hidden>Stop loops</button></p>
 
   <main class="pads" id="pads" aria-label="Sound pads"></main>
 
@@ -69,7 +65,7 @@
         <input id="vol" type="range" min="0" max="100" step="1" value="80" />
       </label>
     </div>
-    <p class="hint">Keys work too — pads: <b>1…8 · Q…I · A…K</b> · loops: <b>Z X C V B N</b> · record: <b>space</b></p>
+    <p class="hint">Keys work too — loops: <b>1…8</b> · sounds: <b>Q…I · A…K</b> · record: <b>space</b></p>
   </section>
 
   <section class="songs">

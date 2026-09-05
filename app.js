@@ -189,6 +189,39 @@ const S = {
     s.start(t); s.stop(t + 1.05);
   },
   drop(t) { tone('sine', 900, 40, t, 0.7, 0.55); noiseHit(t, 0.5, 0.12, 'lowpass', 500); },
+  toot(t) {                                     // silly raspberry
+    const c = audio(), o = c.createOscillator(), g = c.createGain(),
+          f = c.createBiquadFilter(), l = c.createOscillator(), lg = c.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(160, t);
+    o.frequency.linearRampToValueAtTime(110, t + 0.34);
+    f.type = 'lowpass'; f.frequency.value = 900; f.Q.value = 3;
+    l.type = 'square'; l.frequency.value = 26; lg.gain.value = 55;
+    l.connect(lg).connect(o.frequency);
+    env(g, t, 0.01, 0.36, 0.34);
+    o.connect(f).connect(g).connect(out());
+    o.start(t); l.start(t); o.stop(t + 0.45); l.stop(t + 0.45);
+  },
+  squeak(t) {
+    const c = audio(), o = c.createOscillator(), g = c.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(900, t);
+    o.frequency.exponentialRampToValueAtTime(2300, t + 0.09);
+    o.frequency.exponentialRampToValueAtTime(1200, t + 0.18);
+    env(g, t, 0.005, 0.2, 0.2);
+    o.connect(g).connect(out());
+    o.start(t); o.stop(t + 0.28);
+  },
+  growl(t) {
+    const c = audio(), s = noise(), g = c.createGain(), f = c.createBiquadFilter(),
+          l = c.createOscillator(), lg = c.createGain();
+    f.type = 'lowpass'; f.frequency.value = 500; f.Q.value = 6;
+    l.type = 'sine'; l.frequency.value = 18; lg.gain.value = 260;
+    l.connect(lg).connect(f.frequency);
+    env(g, t, 0.04, 0.5, 0.4);
+    s.connect(f).connect(g).connect(out());
+    s.start(t); l.start(t); s.stop(t + 0.6); l.stop(t + 0.6);
+  },
+  cuckoo(t) { tone('triangle', 900, 890, t, 0.16, 0.2); tone('triangle', 700, 690, t + 0.18, 0.2, 0.2); },
   wobble(t) {
     const c = audio(), o = c.createOscillator(), g = c.createGain(),
           f = c.createBiquadFilter(), l = c.createOscillator(), lg = c.createGain();
@@ -237,54 +270,22 @@ const I = {
   stack:'<path d="M4 8h16M4 13h16M4 18h10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
   dots:'<circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/><circle cx="9" cy="6.5" r="1.6" fill="currentColor"/><circle cx="15" cy="17.5" r="1.6" fill="currentColor"/>',
   lowwave:'<path d="M3 15c3 0 3-6 6-6s3 6 6 6 3-6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
+  loop:'<path d="M4 9a5 5 0 015-5h9l-3-3M20 15a5 5 0 01-5 5H6l3 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+  horn:'<path d="M4 10v4l7 4V6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 9c2 1.6 2 4.4 0 6M17 6.5c3.4 2.6 3.4 8.4 0 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  balloon:'<path d="M12 15c3.3 0 6-2.9 6-6.5S15.3 2 12 2 6 4.9 6 8.5 8.7 15 12 15z" stroke="currentColor" stroke-width="2"/><path d="M12 15v3M10.5 21c0-1.6 3-1.6 3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  bubble:'<circle cx="9" cy="14" r="4.5" stroke="currentColor" stroke-width="2"/><circle cx="16.5" cy="8" r="3" stroke="currentColor" stroke-width="2"/><circle cx="18.5" cy="16" r="1.6" stroke="currentColor" stroke-width="2"/>',
+  mouth:'<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M8 14.5c1 1.6 2.4 2.4 4 2.4s3-.8 4-2.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor"/>',
+  bird:'<path d="M4 13c0-3.3 2.7-6 6-6h4l4-3v5l3 2-3 1.5c-.6 4-4 6.5-7.5 6.5H7" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
 };
 const svg = (d, cls) => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" aria-hidden="true">${d}</svg>`;
 
 /* --------------------------------------------------------- the 24 pads */
-/* Grouped in three families of 8 so the grid reads as three colour bands:
-   drums (warm) · melody (cool, C major pentatonic) · fun (bright).       */
+/* Row 1 (pads 1-8) are LOOP pads: tap once and the pattern keeps repeating,
+   tap again to stop. Everything shares one clock so any mix stays in time.
+   Rows 2-3 are one-shot pads you tap to play.                            */
 const NOTE_F = { do1: 523.3, re1: 587.3, mi1: 659.3, so1: 784.0, la1: 880.0, do2: 1046.5, mi2: 1318.5, so2: 1568.0 };
 
-const PADS = [
-  // drums — warm
-  ['Kick',    S.kick,    I.kick,   'coral'],
-  ['Snare',   S.snare,   I.snare,  'tangerine'],
-  ['Hat',     S.hat,     I.hat,    'sunny'],
-  ['Clap',    S.clap,    I.clap,   'pink'],
-  ['Tom',     S.tom,     I.tom,    'coral'],
-  ['Rim',     S.rim,     I.rim,    'tangerine'],
-  ['Cowbell', S.cowbell, I.bell,   'sunny'],
-  ['Crash',   S.crash,   I.cymbal, 'pink'],
-  // melody — cool
-  ['Do',  S.note(NOTE_F.do1), I.note,   'aqua'],
-  ['Re',  S.note(NOTE_F.re1), I.note,   'sky'],
-  ['Mi',  S.note(NOTE_F.mi1), I.note,   'violet'],
-  ['So',  S.note(NOTE_F.so1), I.note,   'mint'],
-  ['La',  S.note(NOTE_F.la1), I.notes,  'aqua'],
-  ['High Do', S.note(NOTE_F.do2), I.notes, 'sky'],
-  ['High Mi', S.note(NOTE_F.mi2), I.sparkle, 'violet'],
-  ['High So', S.note(NOTE_F.so2), I.sparkle, 'mint'],
-  // fun — bright
-  ['Laser',   S.laser,   I.bolt,     'sunny'],
-  ['Boing',   S.boing,   I.heart,    'pink'],
-  ['Pop',     S.pop,     I.star,     'mint'],
-  ['Siren',   S.siren,   I.siren,    'coral'],
-  ['Robot',   S.robot,   I.robot,    'sky'],
-  ['UFO',     S.ufo,     I.ufo,      'violet'],
-  ['Power Up',S.powerup, I.rocket,   'tangerine'],
-  ['Boom',    S.boom,    I.drop,     'aqua'],
-];
-
-const PAD_KEYS = [
-  '1','2','3','4','5','6','7','8',
-  'q','w','e','r','t','y','u','i',
-  'a','s','d','f','g','h','j','k',
-];
-
-/* ------------------------------------------------------------- the loops */
-/* Each loop is a 16-step pattern. They all share one clock, so any
-   combination stays locked together. */
-const B = {                                    // bass notes
+const B = {                                    // bass voices
   c: S.bass(65.4, 0.3), g: S.bass(98.0, 0.3), a: S.bass(110.0, 0.3), e: S.bass(82.4, 0.3),
 };
 const CH = {
@@ -298,80 +299,89 @@ const M = {
   so1: S.note(NOTE_F.so1), la1: S.note(NOTE_F.la1), do2: S.note(NOTE_F.do2),
 };
 
-const LOOPS = [
-  { id: 'bap', name: 'Boom Bap', icon: I.disc, color: 'coral', key: 'z',
-    play(s, t) {
-      if (s === 0 || s === 6 || s === 10) S.kick(t);
-      if (s === 4 || s === 12) S.snare(t);
-      if (s % 2 === 0) S.hat(t);
-      if (s === 14) S.openhat(t);
-    } },
-  { id: 'dance', name: 'Dance', icon: I.bars, color: 'sky', key: 'x',
-    play(s, t) {
-      if (s % 4 === 0) S.kick(t);
-      if (s === 4 || s === 12) S.clap(t);
-      if (s % 4 === 2) S.openhat(t);
-      if (s % 2 === 1) S.hat(t);
-    } },
-  { id: 'perc', name: 'Shakers', icon: I.dots, color: 'tangerine', key: 'c',
-    play(s, t) {
-      if (s % 2 === 1) S.shaker(t);
-      if (s === 3 || s === 11) S.clave(t);
-      if (s === 7) S.tamb(t);
-      if (s === 15) S.cowbell(t);
-    } },
-  { id: 'bass', name: 'Bass', icon: I.lowwave, color: 'violet', key: 'v',
-    play(s, t) {
-      const line = { 0: B.c, 3: B.c, 6: B.g, 8: B.a, 11: B.g, 14: B.e };
-      if (line[s]) line[s](t);
-    } },
-  { id: 'arp', name: 'Melody', icon: I.steps, color: 'aqua', key: 'b',
-    play(s, t) {
-      const seq = [M.do1, null, M.mi1, null, M.so1, null, M.la1, null,
-                   M.do2, null, M.la1, null, M.so1, null, M.mi1, null];
-      if (seq[s]) seq[s](t);
-    } },
-  { id: 'chords', name: 'Chords', icon: I.stack, color: 'mint', key: 'n',
-    play(s, t) {
-      if (s === 0) CH.c(t);
-      if (s === 4) CH.a(t);
-      if (s === 8) CH.f(t);
-      if (s === 12) CH.g(t);
-    } },
+const PADS = [
+  /* ---- looping pads (tap = on, tap again = off) ---- */
+  { name:'Beat',    loop:true, icon:I.disc,    color:'coral',
+    play(s, t){ if (s===0||s===6||s===10) S.kick(t);
+                if (s===4||s===12) S.snare(t);
+                if (s%2===0) S.hat(t);
+                if (s===14) S.openhat(t); } },
+  { name:'Dance',   loop:true, icon:I.bars,    color:'sky',
+    play(s, t){ if (s%4===0) S.kick(t);
+                if (s===4||s===12) S.clap(t);
+                if (s%4===2) S.openhat(t);
+                if (s%2===1) S.hat(t); } },
+  { name:'Shakers', loop:true, icon:I.dots,    color:'tangerine',
+    play(s, t){ if (s%2===1) S.shaker(t);
+                if (s===3||s===11) S.clave(t);
+                if (s===7) S.tamb(t);
+                if (s===15) S.cowbell(t); } },
+  { name:'Bass',    loop:true, icon:I.lowwave, color:'violet',
+    play(s, t){ const line={0:B.c,3:B.c,6:B.g,8:B.a,11:B.g,14:B.e}; if (line[s]) line[s](t); } },
+  { name:'Melody',  loop:true, icon:I.steps,   color:'aqua',
+    play(s, t){ const seq=[M.do1,null,M.mi1,null,M.so1,null,M.la1,null,
+                           M.do2,null,M.la1,null,M.so1,null,M.mi1,null]; if (seq[s]) seq[s](t); } },
+  { name:'Chords',  loop:true, icon:I.stack,   color:'mint',
+    play(s, t){ if (s===0) CH.c(t); if (s===4) CH.a(t); if (s===8) CH.f(t); if (s===12) CH.g(t); } },
+  { name:'Robots',  loop:true, icon:I.robot,   color:'pink',
+    play(s, t){ if (s===0||s===8) S.robot(t);
+                if (s===4||s===12) S.zap(t);
+                if (s===6||s===14) S.pop(t);
+                if (s===10) S.coin(t); } },
+  { name:'Silly',   loop:true, icon:I.mouth,   color:'sunny',
+    play(s, t){ if (s===0||s===8) S.boing(t);
+                if (s===4) S.toot(t);
+                if (s===6||s===14) S.squeak(t);
+                if (s===11) S.honk(t);
+                if (s===12) S.bubble(t); } },
+
+  /* ---- one-shot pads ---- */
+  { name:'Kick',   snd:S.kick,   icon:I.kick,   color:'coral' },
+  { name:'Snare',  snd:S.snare,  icon:I.snare,  color:'tangerine' },
+  { name:'Clap',   snd:S.clap,   icon:I.clap,   color:'sunny' },
+  { name:'Crash',  snd:S.crash,  icon:I.cymbal, color:'pink' },
+  { name:'Do',     snd:S.note(NOTE_F.do1), icon:I.note,    color:'aqua' },
+  { name:'Mi',     snd:S.note(NOTE_F.mi1), icon:I.note,    color:'sky' },
+  { name:'So',     snd:S.note(NOTE_F.so1), icon:I.notes,   color:'violet' },
+  { name:'Twinkle',snd:S.twinkle, icon:I.sparkle, color:'mint' },
+
+  { name:'Toot',   snd:S.toot,   icon:I.horn,    color:'sunny' },
+  { name:'Squeak', snd:S.squeak, icon:I.balloon, color:'pink' },
+  { name:'Honk',   snd:S.honk,   icon:I.siren,   color:'coral' },
+  { name:'Growl',  snd:S.growl,  icon:I.ghost,   color:'tangerine' },
+  { name:'Boing',  snd:S.boing,  icon:I.heart,   color:'mint' },
+  { name:'Laser',  snd:S.laser,  icon:I.bolt,    color:'sky' },
+  { name:'Bubbles',snd:S.bubble, icon:I.bubble,  color:'aqua' },
+  { name:'Cuckoo', snd:S.cuckoo, icon:I.bird,    color:'violet' },
+];
+
+const PAD_KEYS = [
+  '1','2','3','4','5','6','7','8',
+  'q','w','e','r','t','y','u','i',
+  'a','s','d','f','g','h','j','k',
 ];
 
 /* ------------------------------------------------------------------- dom */
 const $ = (s) => document.querySelector(s);
-const padsEl = $('#pads'), loopsEl = $('#loops'), toastEl = $('#toast');
+const padsEl = $('#pads'), toastEl = $('#toast'), stopAllBtn = $('#stopAll');
 
 function buildPads() {
   padsEl.innerHTML = '';
-  PADS.forEach(([name, , icon, color], i) => {
+  PADS.forEach((p, i) => {
     const b = document.createElement('button');
-    b.className = 'pad';
-    b.style.setProperty('--c', `var(--${color})`);
+    b.className = 'pad' + (p.loop ? ' pad-loop' : '');
+    b.style.setProperty('--c', `var(--${p.color})`);
     b.dataset.i = i;
     b.type = 'button';
-    b.setAttribute('aria-label', name);
-    b.innerHTML = `${svg(icon, 'glyph')}<span class="name">${name}</span>` +
-                  `<span class="key">${PAD_KEYS[i].toUpperCase()}</span><span class="ring"></span>`;
+    b.setAttribute('aria-label', p.loop ? p.name + ' loop' : p.name);
+    if (p.loop) b.setAttribute('aria-pressed', 'false');
+    b.innerHTML =
+      (p.loop ? `<span class="badge">${svg(I.loop, 'badge-icon')}</span>` : '') +
+      `${svg(p.icon, 'glyph')}<span class="name">${p.name}</span>` +
+      `<span class="key">${PAD_KEYS[i].toUpperCase()}</span>` +
+      (p.loop ? `<span class="beats">${'<i></i>'.repeat(4)}</span>` : '') +
+      `<span class="ring"></span>`;
     padsEl.appendChild(b);
-  });
-}
-
-function buildLoops() {
-  loopsEl.innerHTML = '';
-  LOOPS.forEach((l) => {
-    const b = document.createElement('button');
-    b.className = 'loop';
-    b.style.setProperty('--c', `var(--${l.color})`);
-    b.dataset.id = l.id;
-    b.type = 'button';
-    b.setAttribute('aria-pressed', 'false');
-    b.innerHTML = `${svg(l.icon, 'loop-icon')}<span class="loop-name">${l.name}</span>` +
-                  `<span class="loop-key">${l.key.toUpperCase()}</span>` +
-                  `<span class="beats">${'<i></i>'.repeat(4)}</span>`;
-    loopsEl.appendChild(b);
   });
 }
 
@@ -394,8 +404,8 @@ function toast(msg) {
 
 function hit(i, t) {
   const p = PADS[i];
-  if (!p) return;
-  try { p[1](t != null ? t : now()); } catch (e) { /* ignore audio hiccups */ }
+  if (!p || !p.snd) return;
+  try { p.snd(t != null ? t : now()); } catch (e) { /* ignore audio hiccups */ }
   flash(i);
 }
 
@@ -417,7 +427,10 @@ padsEl.addEventListener('pointerdown', (e) => {
 padsEl.addEventListener('pointermove', (e) => {           // slide across pads
   if (!active.has(e.pointerId)) return;
   const i = padIndexFrom(document.elementFromPoint(e.clientX, e.clientY));
-  if (i >= 0 && i !== active.get(e.pointerId)) { active.set(e.pointerId, i); press(i); }
+  if (i >= 0 && i !== active.get(e.pointerId)) {
+    active.set(e.pointerId, i);
+    if (!PADS[i].loop) press(i);            // sliding plays sounds, never flips loops
+  }
 });
 const release = (e) => active.delete(e.pointerId);
 padsEl.addEventListener('pointerup', release);
@@ -432,20 +445,21 @@ window.addEventListener('keydown', (e) => {
   const k = e.key.toLowerCase();
   const pi = PAD_KEYS.indexOf(k);
   if (pi >= 0) { e.preventDefault(); if (!held.has(k)) { held.add(k); press(pi); } return; }
-  const lp = LOOPS.find((l) => l.key === k);
-  if (lp) { e.preventDefault(); toggleLoop(lp.id); return; }
   if (k === ' ') { e.preventDefault(); toggleRec(); }
 });
 window.addEventListener('keyup', (e) => held.delete(e.key.toLowerCase()));
 
 function press(i) {
   audio();
+  const p = PADS[i];
+  if (!p) return;
+  if (p.loop) { toggleLoop(i); return; }   // looping pad: tap on / tap off
   hit(i);
   if (rec.on) rec.events.push({ t: performance.now() - rec.t0, i });
 }
 
 /* --------------------------------------------------------- loop engine */
-const on = new Set();          // ids of running loops
+const on = new Set();          // indexes of running loop pads
 let bpm = 100;
 const clock = { step: 0, next: 0, timer: null };
 
@@ -453,18 +467,21 @@ function tick() {
   const spb = 60 / bpm / 4;                       // one 16th note
   while (clock.next < now() + 0.14) {
     const s = clock.step % 16, t = clock.next;
-    LOOPS.forEach((l) => { if (on.has(l.id)) { try { l.play(s, t); } catch (e) {} } });
+    on.forEach((i) => { try { PADS[i].play(s, t); } catch (e) {} });
     if (s % 4 === 0) paintBeat(s / 4, t);
     clock.next += spb;
     clock.step++;
   }
 }
 
-function paintBeat(beat, t) {                     // light the 4 dots in time
+function paintBeat(beat, t) {                     // light the dots in time
   const delay = Math.max(0, (t - now()) * 1000);
   setTimeout(() => {
-    document.querySelectorAll('.loop.is-on .beats').forEach((row) => {
-      [...row.children].forEach((d, i) => d.classList.toggle('is-lit', i === beat));
+    padsEl.querySelectorAll('.pad-loop.is-on').forEach((pad) => {
+      [...pad.querySelectorAll('.beats i')].forEach((d, i) => d.classList.toggle('is-lit', i === beat));
+      if (beat === 0) {
+        pad.classList.remove('is-pulse'); void pad.offsetWidth; pad.classList.add('is-pulse');
+      }
     });
   }, delay);
 }
@@ -477,33 +494,31 @@ function startClock() {
 }
 function stopClock() {
   clearInterval(clock.timer); clock.timer = null;
-  document.querySelectorAll('.beats i').forEach((d) => d.classList.remove('is-lit'));
+  padsEl.querySelectorAll('.beats i').forEach((d) => d.classList.remove('is-lit'));
 }
 
-function toggleLoop(id) {
+function toggleLoop(i) {
   audio();
-  const btn = loopsEl.querySelector(`.loop[data-id="${id}"]`);
-  if (on.has(id)) {
-    on.delete(id);
-    if (btn) { btn.classList.remove('is-on'); btn.setAttribute('aria-pressed', 'false'); }
+  const btn = padsEl.children[i];
+  if (on.has(i)) {
+    on.delete(i);
+    if (btn) { btn.classList.remove('is-on', 'is-pulse'); btn.setAttribute('aria-pressed', 'false'); }
     if (!on.size) stopClock();
   } else {
-    on.add(id);
+    on.add(i);
     if (btn) { btn.classList.add('is-on'); btn.setAttribute('aria-pressed', 'true'); }
     startClock();
   }
+  stopAllBtn.hidden = on.size === 0;
 }
 
-loopsEl.addEventListener('click', (e) => {
-  const b = e.target.closest('.loop');
-  if (b) toggleLoop(b.dataset.id);
-});
-
-$('#stopAll').addEventListener('click', () => {
-  if (!on.size) { toast('No loops running'); return; }
+stopAllBtn.addEventListener('click', () => {
   on.clear();
-  loopsEl.querySelectorAll('.loop').forEach((b) => { b.classList.remove('is-on'); b.setAttribute('aria-pressed', 'false'); });
+  padsEl.querySelectorAll('.pad-loop').forEach((b) => {
+    b.classList.remove('is-on', 'is-pulse'); b.setAttribute('aria-pressed', 'false');
+  });
   stopClock();
+  stopAllBtn.hidden = true;
   toast('Loops stopped');
 });
 
@@ -627,7 +642,6 @@ $('#fsBtn').addEventListener('click', () => {
 });
 
 /* ------------------------------------------------------------------ boot */
-buildLoops();
 buildPads();
 renderSongs();
 bpm = load('bb_bpm', 100); bpmEl.value = bpm; $('#bpmOut').textContent = bpm;

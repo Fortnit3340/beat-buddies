@@ -1,5 +1,5 @@
 /* Beat Buddies service worker — makes the app work with no internet. */
-const CACHE = 'beat-buddies-v6';
+const CACHE = 'beat-buddies-v7';
 const MATCH = { ignoreSearch: true, ignoreVary: true };
 const ASSETS = [
   './',

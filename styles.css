@@ -75,37 +75,19 @@ body{
   color:var(--ink-dim); letter-spacing:.01em;
 }
 
-/* ---------- loops ---------- */
-.loops{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
-.loop{
-  position:relative; overflow:hidden;
-  display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding:9px 6px 8px; cursor:pointer;
-  border:2px solid color-mix(in srgb, var(--c) 34%, transparent);
-  border-radius:var(--r-md);
-  background:linear-gradient(180deg, color-mix(in srgb, var(--c) 13%, transparent), rgba(255,255,255,.02));
-  color:var(--ink); font-family:var(--font-display); font-weight:600;
-  transition:transform .1s ease, background .18s ease, color .18s ease, border-color .18s ease;
+/* ---------- lead line ---------- */
+.lead{
+  margin:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-size:12.5px; line-height:1.35; color:var(--ink-dim);
 }
-.loop:hover{background:color-mix(in srgb, var(--c) 24%, transparent)}
-.loop:active{transform:scale(.97)}
-.loop-icon{width:20px; height:20px; color:var(--c); transition:color .18s ease}
-.loop-name{font-size:12.5px; line-height:1.1; text-align:center}
-.loop-key{
-  position:absolute; top:4px; right:6px;
-  font-family:var(--font-body); font-size:9.5px; font-weight:700; opacity:.42;
+.lead b{color:var(--ink); font-weight:600}
+.lead-badge{
+  display:grid; place-items:center; width:24px; height:24px; flex:none;
+  border-radius:8px; background:rgba(255,217,61,.16); color:var(--sunny);
 }
-.beats{display:flex; gap:3px; margin-top:1px}
-.beats i{width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,.22)}
-.beats i.is-lit{background:#fff; transform:scale(1.5)}
-
-.loop.is-on{
-  background:var(--c); border-color:transparent; color:#241040;
-  box-shadow:0 0 0 3px color-mix(in srgb, var(--c) 26%, transparent), 0 6px 18px rgba(0,0,0,.3);
-}
-.loop.is-on .loop-icon{color:#241040}
-.loop.is-on .beats i{background:rgba(36,16,64,.3)}
-.loop.is-on .beats i.is-lit{background:#241040}
+.lead-badge svg{width:15px; height:15px}
+.lead .chip-stop{margin-left:auto; background:rgba(255,94,126,.22); color:#FFC3CF}
+.lead .chip-stop:hover{background:rgba(255,94,126,.36)}
 
 /* ---------- pads ---------- */
 .pads{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--pad-gap); touch-action:manipulation}
@@ -138,9 +120,32 @@ body{
 .pad.is-hit .ring{animation:ping .4s ease-out}
 @keyframes ping{ from{opacity:.9; transform:scale(.85)} to{opacity:0; transform:scale(1)} }
 
+/* looping pads */
+.pad-loop{box-shadow:0 5px 0 color-mix(in srgb, var(--c) 58%, #150a2c), 0 10px 20px rgba(0,0,0,.3), inset 0 0 0 2px rgba(255,255,255,.35)}
+.pad-loop .badge{
+  position:absolute; top:4px; left:5px; display:grid; place-items:center;
+  width:16px; height:16px; border-radius:6px; background:rgba(36,16,64,.18); opacity:.75;
+}
+.pad-loop .badge-icon{width:11px; height:11px}
+.pad-loop .beats{position:absolute; bottom:5px; left:0; right:0; display:flex; justify-content:center; gap:3px}
+.pad-loop .beats i{width:4px; height:4px; border-radius:50%; background:rgba(36,16,64,.25)}
+.pad-loop .beats i.is-lit{background:#241040; transform:scale(1.5)}
+.pad-loop .name{margin-bottom:6px}
+.pad-loop.is-on{
+  filter:brightness(1.12);
+  box-shadow:0 5px 0 color-mix(in srgb, var(--c) 58%, #150a2c),
+             0 0 0 3px color-mix(in srgb, var(--c) 45%, transparent),
+             0 10px 26px color-mix(in srgb, var(--c) 30%, transparent),
+             inset 0 0 0 3px #fff;
+}
+.pad-loop.is-on .badge{background:#241040; color:var(--c); opacity:1}
+.pad-loop.is-pulse{animation:beatpulse .3s ease-out}
+@keyframes beatpulse{ 0%{transform:scale(1)} 40%{transform:scale(1.045)} 100%{transform:scale(1)} }
+
 @media (prefers-reduced-motion:reduce){
-  .pad,.pad.is-hit,.loop{transition:none}
+  .pad,.pad.is-hit{transition:none}
   .pad.is-hit .ring{animation:none}
+  .pad-loop.is-pulse{animation:none}
 }
 
 /* ---------- deck ---------- */
@@ -237,8 +242,7 @@ input[type=range]:focus-visible{box-shadow:0 0 0 3px rgba(168,118,255,.45)}
   .brand-text p{font-size:11.5px}
   .pad{aspect-ratio:1/.76; border-radius:15px}
   .pad .glyph{width:22px; height:22px}
-  .loop{padding:7px 5px 6px}
-  .loop-icon{width:18px; height:18px}
+  .lead{font-size:11.5px; gap:6px}
   .row-head{margin-bottom:6px}
   .deck{padding:10px; border-radius:20px; gap:8px}
   .btn{padding:9px 5px}
@@ -258,7 +262,6 @@ input[type=range]:focus-visible{box-shadow:0 0 0 3px rgba(168,118,255,.45)}
   .pads{grid-template-columns:repeat(8,1fr)}
   .pad{aspect-ratio:1/1}
   .pad .glyph{width:28px; height:28px}
-  .loops{grid-template-columns:repeat(6,1fr)}
   .deck-row-main{grid-template-columns:repeat(3,1fr) 1.3fr 1.3fr}
   .brand-text h1{font-size:27px}
 }
