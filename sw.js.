@@ -1,0 +1,19 @@
+const CACHE = 'phantom-beat-v1';
+const ASSETS = [
+  '/beat-buddies/',
+  '/beat-buddies/index.html',
+  '/beat-buddies/style.css',
+  '/beat-buddies/script.js'
+];
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE).then((cache) => cache.addAll(ASSETS))
+  );
+});
+
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    caches.match(e.request).then((res) => res || fetch(e.request))
+  );
+});
